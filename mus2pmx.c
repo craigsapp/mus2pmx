@@ -306,8 +306,9 @@ void printTextObject(FILE* input, int count) {
    if (debugQ) {
       printf("#Extra padding bytes after string is %d\n", 4-extraBytes);
    }
+   int bytecount;
    if ((extraBytes > 0) && (extraBytes < 4)) {
-      fread((void*)buffer, sizeof(char), 4-extraBytes, input);
+      bytecount = fread((void*)buffer, sizeof(char), 4-extraBytes, input);
       buffer[4-extraBytes] = '\0';
    }
 }

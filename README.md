@@ -29,6 +29,10 @@ to compactly format the PMX output from _mus2pmx_:
 
 Note that PostScript items are not yet handled by _mus2pmx_.
 
+The [bin directory](https://github.com/craigsapp/mus2pmx/blob/master/bin)
+contains compiled versions of the program for MS-DOS, Windows, OS X and
+linux so that non-geek users can gain access to the program.
+
 The [tests directory](https://github.com/craigsapp/mus2pmx/blob/master/tests)
 contains an example .mus file along with its [.pmx](https://github.com/craigsapp/mus2pmx/blob/master/tests/ex1.pmx) equivalent converted with
 _mus2pmx_.  Here is what the graphical notation stored in

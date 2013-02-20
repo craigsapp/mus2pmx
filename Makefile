@@ -27,7 +27,7 @@ ifeq ($(origin OSTYPE), undefined)
       OSTYPE = OSX
       ENV = MACOSX_DEPLOYMENT_TARGET=10.4
       # use the following to compile for 32-bit architecture on 64-bit comps:
-      ARCH = -m32 -arch i386
+      # ARCH = -m32 -arch i386
    else
       OSTYPE = LINUX
       # use the following to compile for 32-bit architecture on 64-bit comps:
@@ -43,7 +43,7 @@ PREFLAGS = -O3 -lm
 # compiling can be done in Linux). You have to install MinGW and this
 # variable will probably have to be changed to the correct path to the
 # MinGW compiler:
-#COMPILER = /opt/xmingw/bin/i386-mingw32msvc-gcc
+#COMPILER = /usr/bin/i686-pc-mingw32-gcc
 
 all:
 	echo OSTYPE = $(OSTYPE)
