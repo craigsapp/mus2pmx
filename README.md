@@ -1,6 +1,6 @@
 The [_mus2pmx_](https://github.com/craigsapp/mus2pmx/blob/master/mus2pmx.c) 
 program converts binary SCORE files (usually ending in the extension .mus 
-or .pag) into ASCII text file containing SCORE parameter matrix data (usually
+or .pag) into ASCII text files containing SCORE parameter matrix data (usually
 ending in .pmx or .txt).
 
 Converted data is sent to standard output.  So to save converted PMX data into
