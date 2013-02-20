@@ -27,7 +27,9 @@ to compactly format the PMX output from _mus2pmx_:
    mus2pmx input.mus | prettypmx > output.pmx
 </pre>
 
-Note that PostScript items are not yet handled by _mus2pmx_.
+Note that PostScript items are not yet handled by _mus2pmx_.  Also the program
+will currently not read very large WinSCORE binary files which contain a
+four-byte parameter count.
 
 The [bin directory](https://github.com/craigsapp/mus2pmx/blob/master/bin)
 contains compiled versions of the program for MS-DOS, Windows, OS X and
