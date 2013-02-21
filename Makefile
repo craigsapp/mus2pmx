@@ -19,7 +19,7 @@ ENV =
 # Set the ARCH variable to compile 32-bit executable on 64-bit computer
 # (if you have 32-bit libraries installed on your 64-bit computer).
 # See the examples for ARCH on OS X and linux given in comments below.
-ARCH =  -m32 -arch i386
+ARCH =  
 
 # Select options based on the Operating system type
 ifeq ($(origin OSTYPE), undefined)
@@ -43,7 +43,7 @@ PREFLAGS = -O3 -lm
 # compiling can be done in Linux). You have to install MinGW and this
 # variable will probably have to be changed to the correct path to the
 # MinGW compiler:
-#COMPILER = /usr/bin/i686-pc-mingw32-gcc
+COMPILER = /usr/bin/i686-pc-mingw32-gcc
 
 .PHONY: mus2pmx pmx2mus
 all: mus2pmx pmx2mus

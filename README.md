@@ -7,7 +7,7 @@ binary SCORE files will end with the extension .mus or
 
 Binary data files are the primary format used in SCORE.  They are
 read from the file structure with the **G**et command and written
-with the **SA**ve and **SM** commands.  The **NX** and **NB** comands
+with the **SA**ve and **SM** commands.  The **NX** and **NB** commands
 navigate alphabetically through binary SCORE files.  ASCII parameter
 matrix (PMX) files can be written from the SCORE editor by running
 the **PMX** command.  They can be read back into SCORE by using the

@@ -115,7 +115,7 @@ int processInputLine(FILE* input, FILE* output) {
       return count;
    }
 
-   fgets(buffer, sizeof(buffer), input);
+   char* ptr = fgets(buffer, sizeof(buffer), input);
    if (strlen(buffer) > 1000) {
       printf("Error: text line is too long: %s\n", buffer);
       exit(1);
@@ -131,7 +131,7 @@ int processInputLine(FILE* input, FILE* output) {
       pcount = readAsciiNumberLine(param, 1, &(buffer[2]));
       // read the text line for the text item
       buffer[0] = '\0';
-      fgets(buffer, sizeof(buffer), input);
+      ptr = fgets(buffer, sizeof(buffer), input);
       if (strlen(buffer) > 1000) {
          printf("Error: text line is too long: %s\n", buffer);
          exit(1);
@@ -181,7 +181,7 @@ int processInputLine(FILE* input, FILE* output) {
          count++;
       }
 
-      fwrite(buffer, sizeof(char), textcount + extrapad, output);
+      int wcount = fwrite(buffer, sizeof(char), textcount + extrapad, output);
       count += textblocks;
    }
 
@@ -248,7 +248,7 @@ void writeLittleShort(FILE* output, int value) {
    char bytes[2];
    bytes[0] = (char)(value & 0xff);
    bytes[1] = (char)((value >> 8) & 0xff);
-   fwrite(bytes, sizeof(char), 2, output);
+   int count = fwrite(bytes, sizeof(char), 2, output);
 }
 
 
@@ -279,7 +279,7 @@ void writeLittleInt(FILE* output, int value) {
    bytes[1] = (char)((value >> 8)  & 0xff);
    bytes[2] = (char)((value >> 16) & 0xff);
    bytes[3] = (char)((value >> 24) & 0xff);
-   fwrite(bytes, sizeof(char), 4, output);
+   int count = fwrite(bytes, sizeof(char), 4, output);
 }
 
 
