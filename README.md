@@ -1,3 +1,6 @@
+
+# mus2pmx (binary to ASCII)
+
 The [_mus2pmx_](https://github.com/craigsapp/mus2pmx/blob/master/mus2pmx.c) 
 program converts binary SCORE files (usually ending in the extension .mus 
 or .pag) into ASCII text files containing SCORE parameter matrix data (usually
@@ -27,13 +30,40 @@ to compactly format the PMX output from _mus2pmx_:
    mus2pmx input.mus | prettypmx > output.pmx
 </pre>
 
+
+# pmx2mus (ASCII to binary)
+
+The [_pmx2mus_](httpd://github.com/craigsapp/mus2pmx/blob/master/pmx2mus.c)
+program converts ASCII PMX files into binary SCORE files.  This program reverse
+the process of _mus2pmx_, so going from a PMX file to a MUS file and then 
+back again to a PMX file should result in an identical file to the original.
+MUS files contain trailer information which is lost in PMX data, so going from
+an original MUS to PMX to MUS again should have exactly the same data, but 
+numbers in the file trailer will be different.
+
+The _pmx2mus_ program takes two arguments: (1) the name of an input PMX file, 
+and (2) the name of an output MUS file:
+
+<pre>
+   pmx2mus input.pmx output.mus
+</pre>
+
+
+# Limitations
+
 Note that PostScript items are not yet handled by _mus2pmx_.  Also the program
 will currently not read very large WinSCORE binary files which contain a
 four-byte parameter count.
 
+
+# Downloads
+
 The [bin directory](https://github.com/craigsapp/mus2pmx/blob/master/bin)
 contains compiled versions of the program for MS-DOS, Windows, OS X and
 linux so that non-geek users can gain access to the program.
+
+
+# Texts files
 
 The [tests directory](https://github.com/craigsapp/mus2pmx/blob/master/tests)
 contains an example .mus file along with its [.pmx](https://github.com/craigsapp/mus2pmx/blob/master/tests/ex1.pmx) equivalent converted with
