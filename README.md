@@ -5,12 +5,13 @@ which are each in turn a list of floating-point numbers.  Typically
 binary SCORE files will end with the extension .mus or
 .pag.  ASCII PMX files typically end in the extension .pmx.
 
-Binary data files are the primary format used in SCORE.  They are read from
-the file structure with the **G**et command and written with the **SA**ve
-and **S**a**M**e commands.  The **N**e**X**t and **N**ext**B**ack comands
-navigate alphabetically through binary SCORE files.  ASCII parameter matrix
-(PMX) files can be written from the SCORE editor by running the **PMX** command.
-They can be read back into SCORE by using the **RE**ad command.
+Binary data files are the primary format used in SCORE.  They are
+read from the file structure with the **G**et command and written
+with the **SA**ve and **SM** commands.  The **NX** and **NB** comands
+navigate alphabetically through binary SCORE files.  ASCII parameter
+matrix (PMX) files can be written from the SCORE editor by running
+the **PMX** command.  They can be read back into SCORE by using the
+**RE**ad command.
 
 The [_mus2pmx_](https://github.com/craigsapp/mus2pmx/blob/master/mus2pmx.c)
 program converts binary SCORE files into ASCII files, while the
