@@ -1,3 +1,20 @@
+The [SCORE](http://en.wikipedia.org/wiki/SCORE_%28software%29) notation editor
+can save and load data files in both binary as ASCII formats.  Each file format
+contains a list of graphical items which are each a list of floating-point
+numbers.  Typically binary SCORE files will end with the extension .mus or
+.pag.  ASCII PMX files typically end in the extension .pmx.
+
+Binary data files are the primary format used in SCORE.  They are read from
+the file structure with the **G**et command and written with the **SA**ve
+and **S**a**M**e commands.  The **N**e**X**t and **N**ext**B**ack comands
+navigate alphabetically through binary SCORE files.  ASCII parameter matrix
+(PMX) files can be written from the SCORE editor by running the **PMX** command.
+They can be read back into SCORE by using the **RE**ad command.
+
+The [_mus2pmx_](https://github.com/craigsapp/mus2pmx/blob/master/mus2pmx.c)
+program converts binary SCORE files into ASCII files, while the
+[_pmx2mus_](https://github.com/craigsapp/mus2pmx/blob/master/pmx2mus.c)
+program converts ASCII PMX files into binary SCORE files.
 
 # mus2pmx (binary to ASCII)
 
@@ -43,23 +60,32 @@ numbers in the file trailer will be different.
 
 The _pmx2mus_ program takes two arguments: (1) the name of an input PMX file, 
 and (2) the name of an output MUS file:
-
 <pre>
    pmx2mus input.pmx output.mus
+</pre>
+
+To convert multiple PMX files into their binary forms from the bash (unix) 
+terminal:
+<pre>
+   for i in *.pmx
+   do 
+      pmx2mus $i `basename $i .pmx`.mus
+   done
 </pre>
 
 
 # Limitations
 
-Note that PostScript items are not yet handled by _mus2pmx_.  Also the program
-will currently not read very large WinSCORE binary files which contain a
-four-byte parameter count.
+Note that Imported EPS graphics (code 15) items are not yet handled
+by _mus2pmx_ or _pmx2mus_.  Also the program will currently not
+read very large WinSCORE binary files which contain a four-byte
+word count at the start of the file instead of a two-byte count.
 
 
 # Downloads
 
 The [bin directory](https://github.com/craigsapp/mus2pmx/blob/master/bin)
-contains compiled versions of the program for MS-DOS, Windows, OS X and
+contains compiled versions of the program for Windows, OS X and
 linux so that non-geek users can gain access to the program.
 
 
