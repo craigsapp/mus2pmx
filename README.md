@@ -91,7 +91,7 @@ contains compiled versions of the program for Windows, OS X and
 linux so that non-geek users can gain access to the program.
 
 
-# Texts files
+# Test files
 
 The [tests directory](https://github.com/craigsapp/mus2pmx/blob/master/tests)
 contains an example .mus file along with its [.pmx](https://github.com/craigsapp/mus2pmx/blob/master/tests/ex1.pmx) equivalent converted with
