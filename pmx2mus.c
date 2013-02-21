@@ -2,7 +2,7 @@
 // Programmer:    Craig Stuart Sapp <craig@ccrma.stanford.edu>
 // Creation Date: Wed Feb 20 14:45:23 PST 2013
 // Last Modified: Wed Feb 20 16:28:45 PST 2013
-// Filename:      mus2pmx.c
+// Filename:      pmx2mus.c
 // Syntax:        C
 //
 // Description:   Convert SCORE PMX data into binary SCORE files.
@@ -22,18 +22,15 @@
 #include <math.h>
 
 // function declarations:
-void     printAsciiFileAsBinary      (const char* inputfile, 
-                                      const char* outputfile);
-int      processInputLine            (FILE* input, FILE* output);
-int      readAsciiNumberLine         (float* param, int index, 
-                                      const char* string);
-char*    removeNewline               (char* buffer);
-void     writeLittleShort            (FILE* output, int value);
-void     writeLittleFloat            (FILE* output, float value);
-void     writeLittleInt              (FILE* output, int value);
-
-int debugQ   = 0;  // turn on for debugging display
-int verboseQ = 0;  // turn on for seeing more info from trailer
+void     printAsciiFileAsBinary  (const char* inputfile, 
+                                  const char* outputfile);
+int      processInputLine        (FILE* input, FILE* output);
+int      readAsciiNumberLine     (float* param, int index, 
+                                  const char* string);
+char*    removeNewline           (char* buffer);
+void     writeLittleShort        (FILE* output, int value);
+void     writeLittleFloat        (FILE* output, float value);
+void     writeLittleInt          (FILE* output, int value);
 
 ///////////////////////////////////////////////////////////////////////////
 
@@ -70,13 +67,13 @@ void printAsciiFileAsBinary(const char* inputfile, const char* outputfile) {
       printf("Error: cannot open file %s for writing.\n", outputfile);
    }
 
-   // store a place holder for the number of parameters stored in 
-   // the file.
+   // store a place holder for the number of parameters stored in the file.
    writeLittleShort(output, 0);
 
-   int count = 0;
+   int count = 0;  // number of 4-byte words stored in file (excluding initial
+                   // short in word counter.
    while (!feof(input)) {
-      count += processInputLine(input,output);
+      count += processInputLine(input, output);
    }
    fclose(input);
 
@@ -145,6 +142,8 @@ int processInputLine(FILE* input, FILE* output) {
       if (extrapad > 0) {
          extrapad = 4 - extrapad;
       }
+      // store spaces in dummy charater spots to fill out a block of four
+      // bytes at the end of the text item string.
       for (i=0; i<extrapad; i++) {
          buffer[textcount+i] = (char)0x20;
       }
@@ -155,11 +154,12 @@ int processInputLine(FILE* input, FILE* output) {
       // in param[11].
       param[11] = textcount;
       if (pcount < 13) {
-         // also need to include P13 which is the width of the text.
+         // Also need to include P13 which is the width of the text.
+         // Set to zero if it does not exist in PMX data.
          pcount = 13;
       }
    } else {
-      // something else, just ignore line
+      // Not a list of numbers. Something else, so just ignore line
       return count;
    }
 
@@ -192,8 +192,8 @@ int processInputLine(FILE* input, FILE* output) {
 
 //////////////////////////////
 //
-// removeNewline -- Get rid of any 0x0a and 0x0d characters at the
-//    end of the line.
+// removeNewline -- Get rid of any 0x0a and 0x0d characters that may
+//    be hanging around at the end of the line.
 //
 
 char* removeNewline(char* buffer) {
