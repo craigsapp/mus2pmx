@@ -1,7 +1,8 @@
-The [SCORE](http://en.wikipedia.org/wiki/SCORE_%28software%29) notation editor
-can save and load data files in both binary as ASCII formats.  Each file format
-contains a list of graphical items which are each a list of floating-point
-numbers.  Typically binary SCORE files will end with the extension .mus or
+The [SCORE](http://en.wikipedia.org/wiki/SCORE_%28software%29)
+notation editor can save and load data files in both binary and
+ASCII formats.  Each file format contains a list of graphical items
+which are each in turn a list of floating-point numbers.  Typically
+binary SCORE files will end with the extension .mus or
 .pag.  ASCII PMX files typically end in the extension .pmx.
 
 Binary data files are the primary format used in SCORE.  They are read from
