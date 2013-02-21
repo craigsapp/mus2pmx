@@ -33,7 +33,7 @@ to compactly format the PMX output from _mus2pmx_:
 
 # pmx2mus (ASCII to binary)
 
-The [_pmx2mus_](httpd://github.com/craigsapp/mus2pmx/blob/master/pmx2mus.c)
+The [_pmx2mus_](https://github.com/craigsapp/mus2pmx/blob/master/pmx2mus.c)
 program converts ASCII PMX files into binary SCORE files.  This program reverse
 the process of _mus2pmx_, so going from a PMX file to a MUS file and then 
 back again to a PMX file should result in an identical file to the original.
