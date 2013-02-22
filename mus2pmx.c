@@ -404,9 +404,9 @@ int readLittleInt(FILE* input) {
    }
    int output = 0;
    output = byteinfo[3];
-   output = (output << 8)  | byteinfo[2];
-   output = (output << 16) | byteinfo[1];
-   output = (output << 24) | byteinfo[0];
+   output = (output << 8) | byteinfo[2];
+   output = (output << 8) | byteinfo[1];
+   output = (output << 8) | byteinfo[0];
    return output;
 }
 
