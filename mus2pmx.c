@@ -1,7 +1,7 @@
 //
 // Programmer:    Craig Stuart Sapp <craig@ccrma.stanford.edu>
 // Creation Date: Wed Aug 29 13:50:35 PDT 2012
-// Last Modified: Wed Aug 29 16:47:01 PDT 2012
+// Last Modified: Fri Feb 22 03:54:54 PST 2013 added EPS graphic item
 // Filename:      mus2pmx.c
 // Syntax:        C
 //
@@ -14,12 +14,9 @@
 //                loaded into SCORE, but are useful for converting a 
 //                movement from SCORE into another format).
 //
-// Limitations:   PostScript items are not considered yet (should be treated
-//                similar to text items).
-//
 // Usage:         mus2pmx file.mus [file2.mus] > file.pmx
 //
-// Compile:       gcc -o mus2pmx mus2pmx.c
+// $Smake:        gcc -O3 -o mus2pmx -lm mus2pmx.c
 //
 
 #include <stdio.h>
@@ -29,10 +26,11 @@
 // function declarations:
 void     printBinaryPageFileAsAscii  (const char* filename);
 int      readLittleShort             (FILE* input);
+int      readLittleInt               (FILE* input);
 double   readLittleFloat             (FILE* input);
-void     printObjectParameters       (FILE* input, int count);
-void     printTextObject             (FILE* input, int count);
-void     printNumericObject          (FILE* input, int count);
+void     printItemParameters         (FILE* input, int count);
+void     printTextItem               (FILE* input, int count);
+void     printNumericItem            (FILE* input, int count);
 double   roundFractionDigits         (double number, int digits);
 
 int debugQ   = 0;  // turn on for debugging display
@@ -85,6 +83,15 @@ void printBinaryPageFileAsAscii(const char* filename) {
    }
 
    int countFieldByteSize = 2;
+   // if the file size mod 4 has a remainder of 0, then the count field is
+   // four bytes instead of two (this only occurs with large WinScore files.
+   fseek(input, 0, SEEK_END);
+   int filesize = ftell(input);
+   rewind(input);
+   if (filesize % 4 == 0) {
+      countFieldByteSize = 4;
+   }
+
    int numberCount = -1;
    // First read the number of 4-byte numbers (or 4-character groupings) 
    // which are found in the file after this number.  The size of this 
@@ -94,6 +101,8 @@ void printBinaryPageFileAsAscii(const char* filename) {
    // 0xffff.
    if (countFieldByteSize == 2) {
       numberCount = readLittleShort(input);
+   } else {
+      numberCount = readLittleInt(input);
    }
    if (debugQ) {
       printf("#number count is %d\n", numberCount);
@@ -126,13 +135,13 @@ void printBinaryPageFileAsAscii(const char* filename) {
    //              them in the file if this value is larger than 5.0.
    //    number 2: The measurement code: 0.0 = inches, 1.0 = centimeters.
    //              This is needed for certain length measurements for
-   //              certain objects (not often used).
+   //              certain items (not often used).
    //    number 3: Program version number which created the file.
    //    number 4: Program serial number which created the file.
    //    number 5: The last number in the trailer (i.e., the first
    //              trailer byte within the file) must be set to 0.0;
    //              This is an alternate way of identifying the trailer
-   //              after a list of objects.  No object should have a
+   //              after a list of items.  No item should have a
    //              parameter size of 0.0, so a parameter size of 0.0
    //              would indicate the end of the data and the start
    //              of the trailer.
@@ -180,16 +189,16 @@ void printBinaryPageFileAsAscii(const char* filename) {
    // of the file (after the first number):
    fseek(input, countFieldByteSize, SEEK_SET);
 
-   // start reading objects one at a time
+   // start reading items one at a time
    double number = 0.0;
    int readCount = 0;
    while (!feof(input)) {
       if (numberCount - readCount - (int)trailerSize - 1 == 0) {
          // all expected numbers have been read from the file, so stop 
-         // reading musical objects.
+         // reading musical items.
          break;
       } else if (numberCount - readCount - (int)trailerSize - 1 < 0) {
-         printf("Error: object data overlaps with trailer contents\n");
+         printf("Error: item data overlaps with trailer contents\n");
          exit(1);
       }
         
@@ -197,14 +206,14 @@ void printBinaryPageFileAsAscii(const char* filename) {
       number = roundFractionDigits(number, 3);
       readCount++;
       if (number == 0.0) {
-         printf("Error: parameter size of next object is zero.\n");
+         printf("Error: parameter size of next item is zero.\n");
          exit(1);
       }
       if (debugQ) {
-         printf("# next object has %d parameters\n", (int)number);
+         printf("# next item has %d parameters\n", (int)number);
       }
       readCount += (int)number;
-      printObjectParameters(input, (int)number);
+      printItemParameters(input, (int)number);
    }
 
    if (fclose(input)) {
@@ -217,13 +226,15 @@ void printBinaryPageFileAsAscii(const char* filename) {
 
 //////////////////////////////
 //
-// printObjectParameters -- print the given number of parameters
-//    in the musical object at the current point in the file.
+// printItemParameters -- print the given number of parameters
+//    in the musical item at the current point in the file.
 //
 
-void printObjectParameters(FILE* input, int count) {
-   // P1 == parameter 1, which is the object type
-   double P1 = readLittleFloat(input);  
+void printItemParameters(FILE* input, int count) {
+   // P1 == parameter 1, which is the item type
+   double P1           = readLittleFloat(input);  
+   char   buffer[1024] = {0};
+   int    i;
    if (P1 <= 0.0) {
       printf("Strange error: P1 is non-positive: %lf\n", P1);
       exit(1);
@@ -233,27 +244,49 @@ void printObjectParameters(FILE* input, int count) {
       exit(1);
    }
    if (P1 == 16.0) {
-      // text objects use "t" instead of "16.0" for the first parameter
-      // in the object when displaying as ASCII PMX data.
+      // text items use "t" instead of "16.0" for the first parameter
+      // in the item when displaying as ASCII PMX data.
       printf("t     ");
-      printTextObject(input, count-1);
+      printTextItem(input, count-1);
+   } else if (P1 == 15.0) {
+      // print EPS graphic item
+      // The first 13 4-byte words are numeric parameters
+      // Parameter 13 should probably not be printed in the PMX data
+      // since it is only used to edit the filename in the SCORE editor.
+      if (count < 13) {
+         printf("Error: EPS grpahic item has too few parameters\n");
+         exit(1);
+      }
+      printf("%2.3lf", P1);
+      printNumericItem(input, 12);
+      // Read the remaining bytes into a string to print as the EPS filename.
+      if (fread((void*)buffer, sizeof(char), count*4, input) == EOF) {
+         printf("Error while trying to read text string.\n");
+         exit(1);
+      }
+      buffer[count*4] = '\0';
+      // remove any trailing spaces in filename
+      for (i=count*4-1; i>=0; i--) {
+         if (buffer[i] == 0x20) {
+            buffer[i] = '\0';
+         } else {
+            break;
+         }
+      }
+      printf("%s\n", buffer);
    } else {
-      // Print non-text objects.  PostScript objects probably also
-      // need special parsing similar to text objects (I have never
-      // encountered or used a PostScript object).  PostScript objects
-      // will store the filename of the PostScript file which should
-      // be inserted into the output printout for the page.
+      // Print non-text items.  
       if (P1 < 10) {
          // The first character on the line for a PMX should not be a space.
          // The fractional value is usually not used (always .0000).  But
          // Walter's data and the newest Windows SCORE files may contain
          // non-zero fraction digits which describe the layer number of
-         // the object on the staff.
+         // the items on the staff.
          printf("%1.4lf", P1);
       } else {
          printf("%2.3lf", P1);
       }
-      printNumericObject(input, count-1);
+      printNumericItem(input, count-1);
    }
 }
 
@@ -261,19 +294,19 @@ void printObjectParameters(FILE* input, int count) {
 
 //////////////////////////////
 //
-// printTextObject -- print a P1=16 object, starting with P2 value.
+// printTextItem -- print a P1=16 item, starting with P2 value.
 //
 
-void printTextObject(FILE* input, int count) {
+void printTextItem(FILE* input, int count) {
    int i;
    double number;
    if (count < 12) {
-      printf("Error reading binary text object: there must be 13 fixed ");
+      printf("Error reading binary text item: there must be 13 fixed ");
       printf("parameters, but there are instead %d.\n", count);
       exit(1);
    }
 
-   // First print the fixed parameters for the text object:
+   // First print the fixed parameters for the text item:
    int characterCount = -1;
    for (i=0; i<12; i++) {
       number = readLittleFloat(input); 
@@ -317,12 +350,12 @@ void printTextObject(FILE* input, int count) {
 
 //////////////////////////////
 //
-// printNumericObject -- print a P1!=16 object, starting with P2 value.
-//    Also, PostScript objects should probably not be printed with this
+// printNumericItem -- print a P1!=16 item, starting with P2 value.
+//    Also, PostScript items should probably not be printed with this
 //    function (but currently are).
 //
 
-void printNumericObject(FILE* input, int count) {
+void printNumericItem(FILE* input, int count) {
    int i;
    double number;
    for (i=0; i<count; i++) {
@@ -338,8 +371,8 @@ void printNumericObject(FILE* input, int count) {
 //////////////////////////////
 //
 // readLittleShort -- Read a (two-byte) unsigned short at the current
-//   read position in a file, and which is stored in the file in
-//   little-endian ordering.
+//   read position in a file that is stored in the file in little-endian 
+//   ordering.
 //
 
 int readLittleShort(FILE* input) {
@@ -351,6 +384,29 @@ int readLittleShort(FILE* input) {
    int output = 0;
    output = byteinfo[1];
    output = (output << 8) | byteinfo[0];
+   return output;
+}
+
+
+
+//////////////////////////////
+//
+// readLittleInt -- Read a (four-byte) unsigned int at the current
+//   read position in a file that is stored in the file in little-endian 
+//   ordering.
+//
+
+int readLittleInt(FILE* input) {
+   unsigned char byteinfo[4];
+   if (fread((void*)byteinfo, sizeof(unsigned char), 4, input) == EOF) {
+      printf("Error reading little-endian float: unexpected end of file\n");
+      exit(1);
+   }
+   int output = 0;
+   output = byteinfo[3];
+   output = (output << 8)  | byteinfo[2];
+   output = (output << 16) | byteinfo[1];
+   output = (output << 24) | byteinfo[0];
    return output;
 }
 

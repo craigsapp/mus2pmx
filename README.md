@@ -78,10 +78,8 @@ terminal:
 
 # Limitations
 
-Note that Imported EPS graphics (code 15) items are not yet handled
-by _mus2pmx_ or _pmx2mus_.  Also the program will currently not
-read very large WinSCORE binary files which contain a four-byte
-word count at the start of the file instead of a two-byte count.
+The _mus2pmx_ program can process large WinSCORE .MUS files; however,
+the _pmx2mus_ program cannot write large WinSCORE .MUS files.
 
 
 # Downloads

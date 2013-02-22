@@ -1,19 +1,18 @@
 //
 // Programmer:    Craig Stuart Sapp <craig@ccrma.stanford.edu>
 // Creation Date: Wed Feb 20 14:45:23 PST 2013
-// Last Modified: Wed Feb 20 16:28:45 PST 2013
+// Last Modified: Fri Feb 22 02:11:42 PST 2013 added EPS graphic items
 // Filename:      pmx2mus.c
 // Syntax:        C
 //
 // Description:   Convert SCORE PMX data into binary SCORE files.
 //
-// Limitations:   PostScript items are not considered yet (should be treated
-//                similar to text items).  Cannot handle very large WinScore 
-//                files (which uses a 4-byte count at the start of the file).
+// Limitations:   Cannot handle very large WinScore files (which uses 
+//                a 4-byte count at the start of the file).
 //
 // Usage:         pmx2mus file.pmx file.mus
 //
-// Compile:       gcc -o pmx2mus pmx2mus.c
+// $Smake:        gcc -O3 -o pmx2mus pmx2mus.c
 //
 
 #include <string.h>
@@ -77,8 +76,9 @@ void printAsciiFileAsBinary(const char* inputfile, const char* outputfile) {
    }
    fclose(input);
 
-   // write the header
-   writeLittleFloat(output, 0.0);     // start of trailer marker
+   // write the trailer
+   writeLittleFloat(output, 0.0);     // start of trailer marker (size of 
+                                      //  trailer is second-to-last # in file)
    writeLittleInt(output, 4000000);   // serial number
    writeLittleFloat(output, 4.0);     // program version
    writeLittleFloat(output, 0.0);     // measurement code 0.0=in; 1.0=cm
@@ -101,13 +101,14 @@ void printAsciiFileAsBinary(const char* inputfile, const char* outputfile) {
 
 int processInputLine(FILE* input, FILE* output) {
    int    count        =  0;
+   int    wcount       =  0;
    int    pcount       =  0;
    char   buffer[1024] = {0};
    float  param[100]   = {0};
    int    textcount    =  0;
    int    extrapad     =  0;
    int    textblocks   =  0;
-   float  number       = 0.0;
+   float  number       =  0.0;
    int    i;
 
    if (feof(input)) {
@@ -164,15 +165,33 @@ int processInputLine(FILE* input, FILE* output) {
    }
 
    // Write the parameters to the output file.
-   if ((int)param[0] != 16) {
-      number = pcount;
-      writeLittleFloat(output, number);
-      count++;
-      for (i=0; i<pcount; i++) {
-         writeLittleFloat(output, param[i]);
-         count++;
+   if ((int)param[0] == 15) {
+      // write an EPS graphic file item
+      if (pcount != 13) {
+         // must have 13 numeric parameters before filename
+         pcount = 13;
       }
-   } else {
+      // read the next line in the file which contains the filename
+      // the filename may have trailing spaces on its line and may
+      // be padded with spaces to make the length of the filename
+      // be a multiple of 4.
+      ptr = fgets(buffer, sizeof(buffer), input);
+      if (strlen(buffer) > 1000) {
+         printf("Error: text line is too long: %s\n", buffer);
+         exit(1);
+      }
+      removeNewline(buffer);
+      textcount = strlen(buffer);
+      extrapad  = textcount % 4;
+      if (extrapad > 0) {
+         extrapad = 4 - extrapad;
+      }
+      // store spaces in dummy charater spots to fill out a block of four
+      // bytes at the end of the EPS filename item string.
+      for (i=0; i<extrapad; i++) {
+         buffer[textcount+i] = (char)0x20;
+      }
+      textblocks = (textcount + extrapad  ) / 4;
       number = pcount + textblocks;
       writeLittleFloat(output, number);
       count++;
@@ -181,8 +200,28 @@ int processInputLine(FILE* input, FILE* output) {
          count++;
       }
 
-      int wcount = fwrite(buffer, sizeof(char), textcount + extrapad, output);
+      wcount = fwrite(buffer, sizeof(char), textcount + extrapad, output);
       count += textblocks;
+   } else if ((int)param[0] == 16) {
+      // write a text item
+      number = pcount + textblocks;
+      writeLittleFloat(output, number);
+      count++;
+      for (i=0; i<pcount; i++) {
+         writeLittleFloat(output, param[i]);
+         count++;
+      }
+
+      wcount = fwrite(buffer, sizeof(char), textcount + extrapad, output);
+      count += textblocks;
+   } else {
+      number = pcount;
+      writeLittleFloat(output, number);
+      count++;
+      for (i=0; i<pcount; i++) {
+         writeLittleFloat(output, param[i]);
+         count++;
+      }
    }
 
    return count;
@@ -192,7 +231,7 @@ int processInputLine(FILE* input, FILE* output) {
 
 //////////////////////////////
 //
-// removeNewline -- Get rid of any 0x0a and 0x0d characters that may
+// removeNewline -- Get rid of any 0x0a or 0x0d characters that may
 //    be hanging around at the end of the line.
 //
 
@@ -214,6 +253,7 @@ char* removeNewline(char* buffer) {
 //////////////////////////////
 //
 // readAsciiNumberLine -- Read a list of numbers on a line of text.
+//      Should check for unexpected text on line after first number.
 //
 
 int readAsciiNumberLine(float* param, int index, const char* string) {
@@ -260,7 +300,7 @@ void writeLittleShort(FILE* output, int value) {
 //
 
 void writeLittleFloat(FILE* output, float value) {
-   union convert {int i; float f; } data;
+   union {int i; float f; } data;
    data.f = value;
    writeLittleInt(output, data.i);
 }
@@ -269,7 +309,7 @@ void writeLittleFloat(FILE* output, float value) {
 
 //////////////////////////////
 //
-// writeLittleFloat -- Write a four-byte int to a file with smallest
+// writeLittleInt -- Write a four-byte int to a file with smallest
 //   byte written first.
 //
 
