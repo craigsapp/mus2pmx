@@ -260,6 +260,11 @@ void printItemParameters(FILE* input, int count) {
       printf("%2.3lf", P1);
       printNumericItem(input, 12);
       // Read the remaining bytes into a string to print as the EPS filename.
+      count = count - 13;
+      if (count <= 0) {
+         printf("Error: expecting non-zero count for P1=15 filename\n");
+         exit(1);
+      }
       if (fread((void*)buffer, sizeof(char), count*4, input) == EOF) {
          printf("Error while trying to read text string.\n");
          exit(1);
