@@ -54,6 +54,10 @@ mus2pmx:
 pmx2mus:
 	$(ENV) $(COMPILER) $(ARCH) $(PREFLAGS) -o pmx2mus pmx2mus.c
 
+install:
+	cp mus2pmx /usr/bin
+	cp pmx2mus /usr/bin
+
 clean:
 	-rm mus2pmx
 	-rm pmx2mus
