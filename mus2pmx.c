@@ -34,7 +34,7 @@ void     printNumericItem            (FILE* input, int count);
 double   roundFractionDigits         (double number, int digits);
 
 int debugQ   = 0;  // turn on for debugging display
-int verboseQ = 0;  // turn on for seeing more info from trailer
+int verboseQ = 1;  // turn on for seeing more info from trailer
 
 ///////////////////////////////////////////////////////////////////////////
 

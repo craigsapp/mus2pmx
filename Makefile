@@ -57,6 +57,10 @@ pmx2mus:
 install:
 	cp mus2pmx /usr/local/bin
 	cp pmx2mus /usr/local/bin
+	cp drw2aton /usr/local/bin
+	chmod 0755 /usr/local/bin/mus2pmx
+	chmod 0755 /usr/local/bin/pmx2mus
+	chmod 0755 /usr/local/bin/drw2aton
 
 clean:
 	-rm mus2pmx
