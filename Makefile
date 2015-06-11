@@ -46,7 +46,7 @@ PREFLAGS = -O3 -lm
 # COMPILER = /usr/bin/i686-pc-mingw32-gcc
 
 .PHONY: mus2pmx pmx2mus
-all: mus2pmx pmx2mus
+all: mus2pmx pmx2mus drw2aton
 
 mus2pmx:
 	$(ENV) $(COMPILER) $(ARCH) $(PREFLAGS) -o mus2pmx mus2pmx.c
@@ -61,6 +61,12 @@ install:
 	chmod 0755 /usr/local/bin/mus2pmx
 	chmod 0755 /usr/local/bin/pmx2mus
 	chmod 0755 /usr/local/bin/drw2aton
+
+pull:
+	git pull
+
+update: pull all install
+
 
 clean:
 	-rm mus2pmx
