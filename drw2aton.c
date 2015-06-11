@@ -6,10 +6,9 @@
 // Syntax:        C
 //
 // Description:   Convert binary SCORE DRAW files (typically ending in the
-//                extension .drw) into an ASCII format
-//                ending in .pmx extension).
+//                extension .drw) into an ASCII format (ATON structure).
 //
-// Usage:         mus2pmx file.drw > file.aton
+// Usage:         drw2aton file.drw [file2.drw] > file.aton
 //
 // $Smake:        gcc -O3 -o drw2aton -lm drw2aton.c
 //
@@ -218,6 +217,24 @@ int getSymbolOffset(const char* filename) {
    }
    int char1 = tolower(filename[length-2-xlen]) - 'r';
    int char2 = tolower(filename[length-1-xlen]) - 'a';
+   if (tolower(filename[length-3-xlen]) != 'b') {
+      printf("Error: suspicous filename: %s\n", filename);
+      printf("Expecting \"B\", but found %c\n", 
+            toupper(filename[length-3-xlen]));
+      exit(1);
+   }
+   if (tolower(filename[length-4-xlen]) != 'i') {
+      printf("Error: suspicous filename: %s\n", filename);
+      printf("Expecting \"I\", but found %c\n", 
+            toupper(filename[length-4-xlen]));
+      exit(1);
+   }
+   if (tolower(filename[length-5-xlen]) != 'l') {
+      printf("Error: suspicous filename: %s\n", filename);
+      printf("Expecting \"L\", but found %c\n", 
+            toupper(filename[length-5-xlen]));
+      exit(1);
+   }
    return char1 * 26 + char2;
 }
 
