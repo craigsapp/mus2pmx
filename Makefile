@@ -1,7 +1,7 @@
 ##
 ## Programmer:    Craig Stuart Sapp <craig@ccrma.stanford.edu>
 ## Creation Date: Tue Feb 19 21:16:26 PST 2013
-## Last Modified: Tue Feb 19 21:16:28 PST 2013
+## Last Modified: Thu Jun 11 19:04:55 PDT 2015
 ## Filename:      ...mus2pmx/Makefile
 ## Syntax:        GNU Makefile
 ##
@@ -54,6 +54,9 @@ mus2pmx:
 pmx2mus:
 	$(ENV) $(COMPILER) $(ARCH) $(PREFLAGS) -o pmx2mus pmx2mus.c
 
+drw2aton:
+	$(ENV) $(COMPILER) $(ARCH) $(PREFLAGS) -o drw2aton drw2aton.c
+
 install:
 	cp mus2pmx /usr/local/bin
 	cp pmx2mus /usr/local/bin
@@ -66,7 +69,6 @@ pull:
 	git pull
 
 update: pull all install
-
 
 clean:
 	-rm mus2pmx
