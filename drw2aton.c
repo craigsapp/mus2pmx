@@ -23,7 +23,7 @@
 void     printBinaryDrawFileAsAscii  (const char* filename);
 int      readChar                    (FILE* input);
 int      readLittleShort             (FILE* input);
-int      getSymbolOffset             (const char* filename);
+int      getSymbolLibraryOffset      (const char* filename);
 int      readChunk                   (int* vectors, int* index, FILE* input);
 void     printDrawData               (const char* filename, char* fontNames,
                                       int* vectorOffsets, int* vector);
@@ -117,7 +117,7 @@ void printBinaryDrawFileAsAscii(const char* filename) {
 void printDrawData(const char* filename, char* fontNames, int* vectorOffsets,
       int* vectors) {
 
-   int symbolOffset = getSymbolOffset(filename);
+   int symbolOffset = getSymbolLibraryOffset(filename);
 
    // print 10 entries (may be smaller)
    int i;
@@ -195,7 +195,7 @@ int printSymbol(int index, int symbolOffset, char* fontNames,
 
 //////////////////////////////
 //
-// getSymbolOffset -- read the last two characters of the filename to
+// getSymbolLibraryOffset -- read the last two characters of the filename to
 //     determine the starting index of the symbol in the font library.
 //     LIBRA.DRW starts with 0, where "RA" = 0
 //     RB = 1 * 10;
@@ -207,35 +207,43 @@ int printSymbol(int index, int symbolOffset, char* fontNames,
 //     SA = 26 * 10;
 //     etc.
 //
+//     Other sequences are found in the LIB directory, such as:
+//         BDIB[0-6].DRW
+//         BODB[0-6].DRW
+//         BODI[0-6].DRW
+//         BODN[0-9].DRW
+//         BODO0.DRW
+//         MUSI[0-9].DRW
+//
 
-int getSymbolOffset(const char* filename) {
+int getSymbolLibraryOffset(const char* filename) {
    int length = strlen(filename);
    char* extension = strrchr(filename, '.');
    int xlen = 0;
    if (extension != NULL) {
       xlen = strlen(extension);
    }
-   int char1 = tolower(filename[length-2-xlen]) - 'r';
-   int char2 = tolower(filename[length-1-xlen]) - 'a';
-   if (tolower(filename[length-3-xlen]) != 'b') {
-      printf("Error: suspicous filename: %s\n", filename);
-      printf("Expecting \"B\", but found %c\n", 
-            toupper(filename[length-3-xlen]));
-      exit(1);
+   int char1;
+   int char2;
+
+   // Main sequence is LIBRA.DRW...
+   if ((tolower(filename[length-3-xlen]) == 'b') &&
+       (tolower(filename[length-4-xlen]) == 'i') &&
+       (tolower(filename[length-5-xlen]) == 'l')) {
+      char1 = tolower(filename[length-2-xlen]) - 'r';
+      char2 = tolower(filename[length-1-xlen]) - 'a';
+      return char1 * 26 + char2;
    }
-   if (tolower(filename[length-4-xlen]) != 'i') {
-      printf("Error: suspicous filename: %s\n", filename);
-      printf("Expecting \"I\", but found %c\n", 
-            toupper(filename[length-4-xlen]));
-      exit(1);
+
+   // Alternate cases: XXX0.DRW, XXX1.DRW...
+   // Assume a single digit
+
+   if (isdigit(filename[length-1-xlen])) {
+      char1 = tolower(filename[length-1-xlen]) - '0';
+      return char1;
    }
-   if (tolower(filename[length-5-xlen]) != 'l') {
-      printf("Error: suspicous filename: %s\n", filename);
-      printf("Expecting \"L\", but found %c\n", 
-            toupper(filename[length-5-xlen]));
-      exit(1);
-   }
-   return char1 * 26 + char2;
+
+   return 0;
 }
 
 
