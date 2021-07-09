@@ -58,12 +58,12 @@ drw2aton:
 	$(ENV) $(COMPILER) $(ARCH) $(PREFLAGS) -o drw2aton drw2aton.c
 
 install:
-	cp mus2pmx /usr/local/bin
-	cp pmx2mus /usr/local/bin
-	cp drw2aton /usr/local/bin
-	chmod 0755 /usr/local/bin/mus2pmx
-	chmod 0755 /usr/local/bin/pmx2mus
-	chmod 0755 /usr/local/bin/drw2aton
+	sudo cp mus2pmx /usr/local/bin
+	sudo cp pmx2mus /usr/local/bin
+	sudo cp drw2aton /usr/local/bin
+	sudo chmod 0755 /usr/local/bin/mus2pmx
+	sudo chmod 0755 /usr/local/bin/pmx2mus
+	sudo chmod 0755 /usr/local/bin/drw2aton
 
 pull:
 	git pull
