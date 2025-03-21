@@ -66,7 +66,7 @@ all: compile base64
 ##
 
 compile:
-	emcc mus2pmx.c -o mus2pmx.wasm \
+	emcc mus2pmx-wasm.c -o mus2pmx.wasm \
 	   -s EXPORTED_FUNCTIONS="['_convertMusToPmx', '_getPmxOutput', '_malloc', '_free']" \
 	   -s EXPORTED_RUNTIME_METHODS="['UTF8ToString', 'ccall', 'cwrap', 'getValue']" \
 	   --no-entry -s ENVIRONMENT='web'
